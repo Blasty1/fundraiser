@@ -1,0 +1,112 @@
+{% extends "/auth/template_auth.html" %} 
+{% block title %}Registrazione{% endblock %} 
+{% block content %}
+{% with errors = get_flashed_messages() %}
+{% if not errors %}
+    {% set errors=('no errors') %}
+{%  endif %}
+<main>
+  <div class="row pt-2">
+    <div class="col-3 d-flex align-items-center">
+      <div>
+        <a href="{{url_for("index") }}">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          fill="currentColor"
+          class="bi bi-arrow-return-left iconSize"
+          viewBox="0 0 16 16"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M14.5 1.5a.5.5 0 0 1 .5.5v4.8a2.5 2.5 0 0 1-2.5 2.5H2.707l3.347 3.346a.5.5 0 0 1-.708.708l-4.2-4.2a.5.5 0 0 1 0-.708l4-4a.5.5 0 1 1 .708.708L2.707 8.3H12.5A1.5 1.5 0 0 0 14 6.8V2a.5.5 0 0 1 .5-.5"
+          />
+        </svg>
+    </a>
+      </div>
+    </div>
+    <div class="col-6 text-center">
+      <h1>Registrazione</h1>
+    </div>
+    <div class="col-3"></div>
+  </div>
+  <section>
+    <form class="row g-3 needs-validation px-2 py-2" action="{{ url_for("registration") }}" method="post"  novalidate>
+      <div class="col-md-6 position-relative">
+        <label for="validationTooltip01" class="form-label">Nome</label>
+        <input
+          type="text"
+          class="form-control {{ "is-invalid" if errors[0]['name'] else ""}}"
+          name="name"
+          id="validationTooltip01"
+          required
+        />
+        <div class="invalid-feedback">{{ errors[0]['name']|e }}</div>
+      </div>
+      <div class="col-md-6 position-relative">
+        <label for="validationTooltip02" class="form-label">Cognome</label>
+        <input
+          type="text"
+          class="form-control {{ "is-invalid" if errors[0]['surname'] else ""}}"
+          name="surname"
+          id="validationTooltip02"
+          required
+        />
+        <div class="invalid-feedback">{{ errors[0]['surname']|e }}</div>
+      </div>
+      
+      <div class="col-md-6 position-relative">
+        <label for="validationTooltip03" class="form-label">Email</label>
+        <input
+          type="email"
+          class="form-control {{ "is-invalid" if errors[0]["email"] else "" }}"
+          name="email"
+          id="validationTooltip03"
+          required
+        />
+        <div class="invalid-tooltip">Please provide a valid email, must be unique for each account( try to perform a login )</div>
+        <div class="invalid-feedback">{{ errors[0]['email']|e }}</div>
+      </div>
+      <div class="col-md-6 position-relative">
+        <label for="validationTooltip04" class="form-label">Password</label>
+        <input
+          type="password"
+          class="form-control {{ "is-invalid" if errors[0]['password'] else ""}}"
+          name="password"
+          id="validationTooltip04"
+          minlength="8"
+          required
+        />
+        <div class="invalid-tooltip" id="psswERR">Please provide a valid password with a minimum of 8 characters</div>
+        <div class="invalid-feedback">{{ errors[0]['password']|e }}</div>
+    </div>
+      <div class="col-12 pt-2">
+        <button class="btn btn-primary" type="submit" id="buttonSubmit">Registrami</button>
+      </div>
+    </form>
+  </section>
+</main>
+{% endwith %}
+<script>
+(function () {
+    'use strict'
+  
+    // Fetch all the forms we want to apply custom Bootstrap validation styles to
+    var forms = document.querySelectorAll('.needs-validation')
+  
+    // Loop over them and prevent submission
+    Array.prototype.slice.call(forms)
+      .forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+          if (!form.checkValidity()) {
+            event.preventDefault()
+            event.stopPropagation()
+          }
+          
+          form.classList.add('was-validated')
+        }, false)
+      })
+  })()
+</script>
+{% endblock %}

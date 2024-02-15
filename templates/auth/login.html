@@ -1,0 +1,92 @@
+{% extends "/auth/template_auth.html" %} 
+{% block title %}Login{% endblock %}
+{% block content %}
+{% with errors = get_flashed_messages() %}
+    <main>
+      <div class="row pt-2">
+        <div class="col-3 d-flex align-items-center">
+          <div>
+            <a href="{{url_for("index")}}">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              fill="currentColor"
+              class="bi bi-arrow-return-left iconSize"
+              viewBox="0 0 16 16"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M14.5 1.5a.5.5 0 0 1 .5.5v4.8a2.5 2.5 0 0 1-2.5 2.5H2.707l3.347 3.346a.5.5 0 0 1-.708.708l-4.2-4.2a.5.5 0 0 1 0-.708l4-4a.5.5 0 1 1 .708.708L2.707 8.3H12.5A1.5 1.5 0 0 0 14 6.8V2a.5.5 0 0 1 .5-.5"
+              />
+            </svg>
+        </a>
+          </div>
+        </div>
+        <div class="col-6 text-center">
+          <h1>Login</h1>
+        </div>
+        <div class="col-3"></div>
+      </div>
+      <section>
+        <form class="row g-3 needs-validation px-2 py-2" method="post" action="{{url_for('login')}}" novalidate>
+            {% if errors %}
+            <div class="col-12">
+                <div class="alert alert-danger my-0" role="alert">
+                    {{ errors[0]|e  }}
+                  </div>
+        </div>
+        {%  endif %}
+          <div class="col-12 position-relative">
+            <label for="validationTooltip03" class="form-label">Email</label>
+            <input
+              type="email"
+              class="form-control"
+              name="email"
+              id="validationTooltip03"
+              required
+            />
+            <div class="invalid-tooltip">Email non conforme agli standard</div>
+          </div>
+          <div class="col-md-12 position-relative">
+            <label for="validationTooltip04" class="form-label">Password</label>
+            <input
+              type="password"
+              class="form-control"
+              name="password"
+              id="validationTooltip04"
+              minlength="8"
+              required
+            />
+            <div class="invalid-tooltip" id="psswERR">Password sbagliata</div>
+          </div>
+          <div class="col-12 pt-2">
+            <button class="btn btn-primary" type="submit" id="buttonSubmit">Entra</button>
+          </div>
+        </form>
+      </section>
+    </main>
+{% endwith %}
+    <script>
+    (function () {
+        'use strict'
+      
+        // Fetch all the forms we want to apply custom Bootstrap validation styles to
+        var forms = document.querySelectorAll('.needs-validation')
+      
+        // Loop over them and prevent submission
+        Array.prototype.slice.call(forms)
+          .forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+              if (!form.checkValidity()) {
+                event.preventDefault()
+                event.stopPropagation()
+              }
+              
+              form.classList.add('was-validated')
+            }, false)
+          })
+      })()
+    </script>
+    {% endblock %}
+    

@@ -17,6 +17,7 @@
     9. End_timestamp  &rarr; timestamp
     10. id_fund  &rarr; integer ( primary key )
     11. status  &rarr; varchar(100)
+    12. id_user &rarr; integer ( foreign key )
 3. Donation
     1. id_donation &rarr; integer ( primary key )
     3. id_fund  &rarr; integer ( foreign key )
