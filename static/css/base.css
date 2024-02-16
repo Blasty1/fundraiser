@@ -18,12 +18,13 @@ body {
 {
     color: black;
 }
-#title{
+#title > a{
     font-family: "Dosis", sans-serif;
     font-optical-sizing: auto;
     font-weight: 600;
     font-style: normal;
     color: rgb(2, 169, 92);
+    text-decoration: none;
 }
 ul.nav a:hover { 
     color: rgb(2, 169, 92) !important; 

@@ -5,8 +5,157 @@
 {% endblock %}
 {% block content %}
 <main>
-    <section>
+{% with errors = get_flashed_messages() %}
+{% if not errors %}
+    {% set errors=('no errors') %}
+{%  endif %}
+  <div class="row pt-2">
+    <div class="col-12 text-center">
+      <h4>Crea la tua Raccolta Fondi</h4>
+    </div>
+  </div>
+  <section>
+    <form class="row g-3 needs-validation px-2 py-2" action="{{ url_for("new_fund") }}" method="post"  enctype="multipart/form-data" novalidate>
+      <div class="col-md-6 position-relative">
 
-    </section>
+        <label for="validationTooltip01" class="form-label">Titolo</label>
+        <input
+          type="text"
+          class="form-control {{ "is-invalid" if errors[0]['title_'] else ""}}"
+          name="title"
+          id="validationTooltip01"
+          required
+        />
+        <div class="invalid-feedback">{{ errors[0]['title_']|e }}</div>
+      </div>
+
+
+  <div class="col-md-6 position-relative">
+    <label for="validationTooltip02" class="form-label">Immagine</label>
+    <input 
+        type="file" 
+        class="form-control {{ "is-invalid" if errors[0]['image'] else ""}}"" 
+        id="validationTooltip02" 
+        aria-label="immagine"
+        name="image"
+        accept="image/png, image/jpeg"
+    />
+    <div class="invalid-feedback">{{ errors[0]['image']|e }}</div>
+    <div class="invalid-tooltip">Formato non valido</div>
+  </div>
+
+      <div class="col-md-4 position-relative">
+        <label for="validationTooltip03" class="form-label">Obiettivo da Raggiungere</label>
+        <input
+          type="number"
+          class="form-control {{ "is-invalid" if errors[0]['target'] else ""}}"
+          name="target"
+          step=".01"
+          id="validationTooltip03"
+          min="0"
+          required
+        />
+        <div class="invalid-feedback">{{ errors[0]['target']|e }}</div>
+        <div class="invalid-tooltip">Formato non valido : numero maggiore di 0</div>
+
+        
+      </div>
+      <div class="col-md-4 position-relative">
+        <label for="validationTooltip04" class="form-label">Donazione Minima</label>
+        <input
+          type="number"
+          class="form-control {{ "is-invalid" if errors[0]['min'] else ""}}"
+          name="min"
+          step=".01"
+          id="validationTooltip04"
+          min="0"
+          required
+        />
+        <div class="invalid-feedback">{{ errors[0]['min']|e }}</div>
+        <div class="invalid-tooltip">Formato non valido : numero maggiore di 0</div>
+
+        
+      </div>
+      
+      <div class="col-md-4 position-relative">
+        <label for="validationTooltip05" class="form-label">Donazione Massima</label>
+        <input
+          type="number"
+          step=".01"
+          class="form-control {{ "is-invalid" if errors[0]['max'] else ""}}"
+          name="max"
+          id="validationTooltip05"
+          min="0"
+          required
+        />
+        <div class="invalid-feedback">{{ errors[0]['max']|e }}</div>
+        <div class="invalid-tooltip">Formato non valido : numero maggiore di 0</div>
+
+        
+      </div>
+    
+
+      <div class="col-md-6 position-relative">
+        <label for="validationTooltip06" class="form-label">Tipo di Raccolta</label>
+        <select class="form-select {{ "is-invalid" if errors[0]['type'] else ""}}"  name="type" aria-label="Default select example" id="validationTooltip06" required>
+          <option selected disabled value="">Scegli</option>
+          <option value="lampo">Lampo</option>
+          <option value="normale">Normale</option>
+        </select>
+        <div class="invalid-tooltip">Scegli una delle opzioni</div>
+        <div class="invalid-feedback">{{ errors[0]['type']|e }}</div>
+      </div>
+      <div class="col-md-6 position-relative">
+        <label for="validationTooltip07" class="form-label">Data Chiusura ( valida solo con Raccolta Normale )</label>
+        <input
+          type="datetime-local"
+          min="{{minDate}}" 
+          max="{{maxDate}}"
+          class="form-control {{ "is-invalid" if errors[0]['end_timestamp'] else ""}}"
+          name="end_timestamp"
+          id="validationTooltip07"
+          min="0"
+        />
+        <div class="invalid-feedback">{{ errors[0]['end_timestamp']|e }}</div>
+        <div class="invalid-tooltip">La data deve entrare nel seguente range: {{minDate}} : {{maxDate}}</div>
+      </div>
+
+      <div class="col-md-12 position-relative">
+        <label for="validationTooltip08" class="form-label">Descrizione</label>
+        <textarea
+          placeholder="Descrizione della Raccolta Fondi"
+          class="form-control {{ "is-invalid" if errors[0]['description'] else ""}}"
+          name="description"
+          id="validationTooltip08"
+          required></textarea>
+        <div class="invalid-feedback">{{ errors[0]['description']|e }}</div>
+    </div>
+      <div class="col-12 pt-2 d-flex justify-content-center">
+        <button class="btn btn-primary" type="submit" id="buttonSubmit">Registrami</button>
+      </div>
+    </form>
+  </section>
 </main>
+{% endwith %}
+<script>
+(function () {
+    'use strict'
+  
+    // Fetch all the forms we want to apply custom Bootstrap validation styles to
+    var forms = document.querySelectorAll('.needs-validation')
+  
+    // Loop over them and prevent submission
+    Array.prototype.slice.call(forms)
+      .forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+          if (!form.checkValidity()) {
+            event.preventDefault()
+            event.stopPropagation()
+          }
+          
+          form.classList.add('was-validated')
+        }, false)
+      })
+  })()
+</script>
 {% endblock %}

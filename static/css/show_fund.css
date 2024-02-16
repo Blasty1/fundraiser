@@ -1,0 +1,57 @@
+main,aside > div{
+    background-color: #fff;
+    border-top-left-radius: 2rem;
+    border-top-right-radius: 2rem;
+    border-bottom-right-radius:2em;
+    border-bottom-left-radius: 2rem; 
+    padding:1em; 
+}
+#tableDonations th{
+    padding-left: 0;
+}
+#tableDonations thead{
+    position: sticky;
+    top: 0;
+}
+#divTable {
+    max-height:40vh;
+    overflow-y:scroll;
+}
+#tableDonations thead{
+    border-color: black;
+}
+#contentPart{
+    justify-content: space-between;
+}
+#buttonDona{
+    border-top-left-radius: 1em;
+    border-top-right-radius: 1em;
+    border-bottom-right-radius: 1em;
+    border-bottom-left-radius: 1em;
+    background-color: rgb(0, 110, 58);
+    color: #fff;
+    width: 100%;
+    border: none;
+}
+#imagePlaceHolder{
+    width:100%;
+    height:100%;
+    fill:rgb(0, 110, 58);
+}
+.centered{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #fff;
+}
+#progressBarDonazioni > div{
+    background-color: rgb(2, 169, 92);
+}
+#progressBarDonazioni{
+    height: 1.5em;
+    width: 95%;
+}
+.fit-content{
+    height: fit-content;
+}

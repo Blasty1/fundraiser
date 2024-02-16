@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+{% block links %}    <link rel="stylesheet" href="{{url_for('static',filename="/css/make_donation.css")}}"> {% endblock %}
+{% block title %}Home{% endblock %}
+{% block content %}
+{% with errors = get_flashed_messages() %}
+    <main>
+      <div class="row pt-2">
+        <div class="ms-1 col-3 d-flex align-items-center">
+          <div>
+            <a href="{{url_for("fund",id_fund=fund['id_fund'])}}">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              fill="currentColor"
+              class="bi bi-arrow-return-left iconSize"
+              viewBox="0 0 16 16"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M14.5 1.5a.5.5 0 0 1 .5.5v4.8a2.5 2.5 0 0 1-2.5 2.5H2.707l3.347 3.346a.5.5 0 0 1-.708.708l-4.2-4.2a.5.5 0 0 1 0-.708l4-4a.5.5 0 1 1 .708.708L2.707 8.3H12.5A1.5 1.5 0 0 0 14 6.8V2a.5.5 0 0 1 .5-.5"
+              />
+            </svg>
+        </a>
+          </div>
+        </div>
+        <div class="col-6 text-center">
+          <h3 class="text-capitalize">Donazione {{ fund['title'] }}</h3>
+        </div>
+        <div class="col-3"></div>
+      </div>
+      <section>
+        <form class="row g-3 needs-validation px-2 py-2" method="post" action="{{url_for('donate',id_fund=fund['id_fund'])}}" novalidate>
+        {% for error in errors %}
+            <div class="col-12">
+                <div class="alert alert-danger my-0" role="alert">
+                    {{ error|e  }}
+                </div>
+            </div>
+        {%  endfor %}
+          <div class="col-12 col-md-6 position-relative">
+            <label for="validationTooltip01" class="form-label">Nome</label>
+            <input
+              type="text"
+              class="form-control"
+              name="name"
+              id="validationTooltip01"
+              required
+            />
+            <div class="invalid-tooltip">Inserisci il campo richiesto</div>
+          </div>
+          <div class="col-12 col-md-6 position-relative">
+            <label for="validationTooltip02" class="form-label">Cognome</label>
+            <input
+              type="text"
+              class="form-control"
+              name="surname"
+              id="validationTooltip02"
+              required
+            />
+            <div class="invalid-tooltip">Inserisci il campo richiesto</div>
+          </div>
+          <div class="col-12 position-relative">
+            <label for="validationTooltip03" class="form-label">Indirizzo</label>
+            <input
+              type="text"
+              class="form-control"
+              name="address"
+              id="validationTooltip03"
+              required
+            />
+            <div class="invalid-tooltip">Inserisci il campo richiesto</div>
+          </div>
+
+          <div class="col-12 col-md-6 position-relative">
+            <label for="validationTooltip04" class="form-label">Numero di carta</label>
+            <input
+              type="text"
+              class="form-control"
+              name="cardNumber"
+              id="validationTooltip04"
+              pattern="[0-9]{4} [0-9]{4} [0-9]{4} [0-9]{4} *"
+              placeholder="0000 0000 0000 0000"
+              required
+            />
+            <div class="invalid-tooltip">Il formato deve essere corretto: dividere i 4 numeri da degli spazi</div>
+          </div>
+          <div class="col-12 col-md-3 position-relative">
+            <label for="validationTooltip05" class="form-label">Scadenza</label>
+            <input
+              type="text"
+              placeholder="YYYY-MM"
+              class="form-control"
+              name="cardDeadline"
+              pattern="[0-9]{4}-[0-9]{1,2}"
+              id="validationTooltip05"
+              min=""
+              required
+            />
+            <div class="invalid-tooltip">Il formato deve essere corretto: non si accettano carte scadute</div>
+          </div>
+          <div class="col-12 col-md-3 position-relative">
+            <label for="validationTooltip06" class="form-label">Pin</label>
+            <input
+              type="text"
+              class="form-control"
+              name="cardDeadline"
+              id="validationTooltip06"
+              pattern="[0-9]{3}"
+              placeholder="XXX"
+              required
+            />
+            <div class="invalid-tooltip">Il formato deve essere corretto</div>
+          </div>
+
+          <div class="col-12 col-md-8 position-relative">
+            <label for="validationTooltip07" class="form-label">Importo Donazione</label>
+            <input
+              type="number"
+              class="form-control"
+              name="cardDeadline"
+              id="validationTooltip07"
+              step=".01"
+              max="{{fund['max_donation']}}"
+              min="{{fund['min_donation']}}"
+              placeholder="Importo minimo:{{fund['min_donation']}}  Importo massimo:{{fund['max_donation']}}"
+              required
+            />
+            <div class="invalid-tooltip">Il formato deve essere corretto: Importo minimo:{{fund['min_donation']}}  Importo massimo:{{fund['max_donation']}}</div>
+          </div>
+          <div class="col-md-4 position-relative">
+            <label for="validationTooltip08" class="form-label">Donazione</label>
+            <select class="form-select"  name="type" aria-label="Default select example" id="validationTooltip08" required>
+              <option selected value="pubblica">Pubblica</option>
+              <option value="anonima">Anonima</option>
+            </select>
+            <div class="invalid-tooltip">Scegli una delle opzioni</div>
+          </div>
+          
+          <div class="col-12 pt-2">
+            <button class="btn btn-primary" type="submit" id="buttonSubmit">Dona</button>
+          </div>
+        </form>
+      </section>
+    </main>
+{% endwith %}
+    <script>
+    (function () {
+        'use strict'
+      
+        // Fetch all the forms we want to apply custom Bootstrap validation styles to
+        var forms = document.querySelectorAll('.needs-validation')
+      
+        // Loop over them and prevent submission
+        Array.prototype.slice.call(forms)
+          .forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+              if (!form.checkValidity()) {
+                event.preventDefault()
+                event.stopPropagation()
+              }
+              
+              form.classList.add('was-validated')
+            }, false)
+          })
+      })()
+    </script>
+    {% endblock %}
+    

@@ -1,23 +1,23 @@
 # import module
-from flask import Flask, render_template, request, redirect, url_for , flash
-from flask_login import LoginManager, login_user , login_required , logout_user
+from flask import abort,Flask, render_template, request, redirect, url_for , flash
+from flask_login import LoginManager, login_user , login_required , logout_user,current_user
 from flask_session import Session
 import dao.user_dao
+import dao.fund_dao
+import datetime
 from models import User
-import json
 from werkzeug.security import generate_password_hash,check_password_hash
 # create the application
-
 app = Flask(__name__)
 app.config['SECRET_KEY']='secret'
-
 login_manager = LoginManager()
 login_manager.init_app(app)
 
 # homepage
 @app.route('/')
 def index():
-  return render_template('index.html')
+  funds=dao.fund_dao.getAllOpens()
+  return render_template('index.html',funds=funds)
 
 @app.route('/get/registration')
 def get_registration():
@@ -91,3 +91,72 @@ def logout():
   logout_user()
   return redirect(url_for('index'))
 
+@app.route('/new_fund')
+@login_required
+def get_new_fund():
+  minDate=datetime.date.today() 
+  maxDate=(datetime.date.today() + datetime.timedelta(days=14))
+  return render_template('new_fund.html',minDate=minDate,maxDate=maxDate)
+
+@app.route('/new_fund',methods=['POST'])
+@login_required
+def new_fund():
+  fund = request.form.to_dict()
+  fund['image']=request.files['image'].filename
+  fund['id_user']= current_user.get_id()
+  fund['start_timestamp']=datetime.datetime.now()
+
+  errors=dao.fund_dao.checkForErrorsOnParams(fund)
+
+  if(len(errors) != 0):
+    flash(errors)
+    return redirect(url_for('get_new_fund'))
+  
+  if(fund['type'] == 'lampo'):
+    fund['end_timestamp']=datetime.datetime.now() + datetime.timedelta(minutes=5)
+  else:
+    fund['end_timestamp']=datetime.datetime.strptime(fund['end_timestamp'],"%Y-%m-%dT%H:%M")
+
+  if(dao.fund_dao.store_fund(fund)):
+    if(request.files['image']):
+      request.files['image'].save('static/img/'+fund['image'])
+    return redirect(url_for('index'))
+  
+  return abort(503,{"message" : "database is not working for some reasons on creating a new fund"})
+
+@app.route('/fund/<int:id_fund>')
+def fund(id_fund):
+  fund_found=dao.fund_dao.getFundByID(id_fund)
+  user=dao.user_dao.get_user_by_id(fund_found['id_user'])
+  fund_found['full_name']=user['name'] + " " + user['surname']
+  return render_template('show_fund.html',fund=fund_found)
+
+@app.route('/fund/<int:id_fund>/donation')
+def make_donation(id_fund):
+  fund_found=dao.fund_dao.getFundByID(id_fund)
+  return render_template('make_donation.html',fund=fund_found)
+
+@app.route('/fund/<int:id_fund>/donate',methods=['POST'])
+def donate(id_fund):
+  fund = request.form.to_dict()
+  fund['image']=request.files['image'].filename
+  fund['id_user']= current_user.get_id()
+  fund['start_timestamp']=datetime.datetime.now()
+
+  errors=dao.fund_dao.checkForErrorsOnParams(fund)
+
+  if(len(errors) != 0):
+    flash(errors)
+    return redirect(url_for('get_new_fund'))
+  
+  if(fund['type'] == 'lampo'):
+    fund['end_timestamp']=datetime.datetime.now() + datetime.timedelta(minutes=5)
+  else:
+    fund['end_timestamp']=datetime.datetime.strptime(fund['end_timestamp'],"%Y-%m-%dT%H:%M")
+
+  if(dao.fund_dao.store_fund(fund)):
+    if(request.files['image']):
+      request.files['image'].save('static/img/'+fund['image'])
+    return redirect(url_for('index'))
+  
+  return abort(503,{"message" : "database is not working for some reasons on creating a new fund"})

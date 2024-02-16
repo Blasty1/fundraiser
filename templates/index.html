@@ -1,6 +1,42 @@
 {% extends "base.html" %}
+{% block links %}    <link rel="stylesheet" href="{{url_for('static',filename="/css/index.css")}}"> {% endblock %}
 {% block title %}Home{% endblock %}
 {% block content %}
 <main>
+    <div class="row pt-2">
+        <div class="col-12 text-left">
+          <h4>Raccolte Aperte</h4>
+        </div>
+    </div>
+      <section>
+        <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4">
+            {% for fund in funds %}
+            <div class="col">
+              <div class="card h-100">
+                {% if fund['image'] %}
+                <img src="{{ url_for('static',filename="img/"+fund['image']) }}" class="card-img-top" alt="...">
+                {% else %}
+                <svg class="bd-placeholder-img card-img-top"  xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: Image cap" preserveAspectRatio="xMidYMid slice" focusable="false">
+                    <rect id="imagePlaceHolder"></rect>
+                </svg>
+                {% endif %}
+                <div class="card-body">
+                  <h5 class="card-title text-capitalize">{{fund['title']|e}}</h5>
+                  <p class="card-text"><span class="type">Tipologia Raccolta: {{fund['type']|e}}</span>
+                    <br>
+                    <span class="description">
+                    {{fund['description']|e}}
+                  </span>
+                  </p>
+                  <a href="{{ url_for('fund',id_fund=fund['id_fund']) }}" class="btn btn-primary stretched-link buttonOpenCards">Open</a>
+                </div>
+                <div class="card-footer text-center">
+                  <small class="text-body-secondary">Tempo rimanente: <br>{{fund['remaining_time']|e}}</small>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+      </section>
 </main>
 {% endblock %}
