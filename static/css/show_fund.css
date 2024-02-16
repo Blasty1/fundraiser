@@ -38,6 +38,13 @@ main,aside > div{
     height:100%;
     fill:rgb(0, 110, 58);
 }
+.status-close{
+    color:#dc3545;
+}
+.status-open{
+    color: rgb(2, 169, 92);
+}
+
 .centered{
     position: absolute;
     top: 50%;

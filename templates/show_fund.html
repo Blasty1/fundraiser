@@ -15,10 +15,12 @@
           </tr>
         </thead>
         <tbody>
+            {% for donation in donations['donations'] %}
           <tr>
-            <td>Mark</td>
-            <td>Otto</td>
+            <td class="text-capitalize">{{donation['name']}} {{donation['surname']}}</td>
+            <td>{{donation['amount']}}&euro;</td>
           </tr>
+          {% endfor %}
         </tbody>
       </table>
       </div>
@@ -30,12 +32,17 @@
 </aside>
 <main class="col-12 col-lg-8">
     <div class="row w-100 mx-auto">
-        <div class="col-12">
-            <h3 class="text-capitalize">{{ fund['title'] }}</h3>            
+        <div class="col-12 pb-1 d-flex justify-content-between">
+            <h3 class="text-capitalize">{{ fund['title'] }}</h3>
+            <h3 class="status-open">Aperta</h3>            
         </div>
         <div class="col-12 row pe-0">
             <div class="col-6"><p class="text-capitalize">Raccolta Fondi {{ fund['type']|e }}</p></div>
             <div class="col-6 p-0 text-end"><p>Scadenza: {{ fund['end_timestamp']|e }}</p></div>
+        </div>
+        <div class="col-12 row pe-0">
+            <div class="col-6"><p class="text-capitalize">Donazione Massima: {{ fund['max_donation']|e }}&euro;</p></div>
+            <div class="col-6 p-0 text-end"><p>Donazine Minima: {{ fund['min_donation']|e }}&euro;</p></div>
         </div>
         <div class="col-12 position-relative">
             {% if fund['image'] %}
@@ -50,10 +57,10 @@
         <div class="col-12 row pe-0 mt-1">
             <div class="col-12 pe-0 mx-auto row">
                 <div class="col-6 ps-0"><h6>Capitale Raccolto</h6></div>
-                <div class="col-6 text-end p-0"><h6>Obiettivo: {{ fund['target']|e }}&euro;</h6></div>
+                <div class="col-6 text-end p-0"><h6>Status: {{donations['total']}}&euro;/{{ fund['target']|e }}&euro;</h6></div>
             </div>
             <div class="progress p-0 mx-auto" id="progressBarDonazioni" role="progressbar" aria-label="Animated striped example">
-                <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 75%"></div>
+                <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: {{ widthProgressBar }}%"></div>
             </div>
         </div>
         <div class="col-12 mt-2">

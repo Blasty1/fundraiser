@@ -78,11 +78,7 @@ def getAllOpens():
 
     # : crea una copia dell'array cosi che possa eliminare l'elemento durante 
     for fund in result[:]:
-        #per risolvere il problema della formattazione
-        if '.' not in fund['end_timestamp']:
-            fund['end_timestamp'] = fund['end_timestamp'] + '.0'
-
-        fund['remaining_time']=(datetime.datetime.strptime(fund['end_timestamp'], '%Y-%m-%d %H:%M:%S.%f') - datetime.datetime.now())
+        fund['remaining_time']=(datetime.datetime.strptime(fund['end_timestamp'], '%Y-%m-%d %H:%M:%S') - datetime.datetime.now())
 
     cursor.close()
     connection.close()
@@ -97,7 +93,10 @@ def getFundByID(id_fund):
     sql = "SELECT * FROM funds WHERE id_fund = ?"
     cursor.execute(sql,(id_fund,))
 
-    fund  = dict(cursor.fetchone())
+    fund  = cursor.fetchone()
+
+    if(fund):
+        fund = dict(fund)
 
     cursor.close()
     connection.close()

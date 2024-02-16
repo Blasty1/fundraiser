@@ -4,6 +4,7 @@ from flask_login import LoginManager, login_user , login_required , logout_user,
 from flask_session import Session
 import dao.user_dao
 import dao.fund_dao
+import dao.donation_dao
 import datetime
 from models import User
 from werkzeug.security import generate_password_hash,check_password_hash
@@ -113,7 +114,7 @@ def new_fund():
     return redirect(url_for('get_new_fund'))
   
   if(fund['type'] == 'lampo'):
-    fund['end_timestamp']=datetime.datetime.now() + datetime.timedelta(minutes=5)
+    fund['end_timestamp']=(datetime.datetime.now() + datetime.timedelta(minutes=5)).strftime("%Y-%m-%d %H:%M:%S")
   else:
     fund['end_timestamp']=datetime.datetime.strptime(fund['end_timestamp'],"%Y-%m-%dT%H:%M")
 
@@ -122,41 +123,51 @@ def new_fund():
       request.files['image'].save('static/img/'+fund['image'])
     return redirect(url_for('index'))
   
-  return abort(503,{"message" : "database is not working for some reasons on creating a new fund"})
+  return abort(503,"database is not working for some reasons on creating a new fund")
 
 @app.route('/fund/<int:id_fund>')
 def fund(id_fund):
   fund_found=dao.fund_dao.getFundByID(id_fund)
+  if(not fund_found):
+    abort(404,"Raccolta fondi non trovata")
   user=dao.user_dao.get_user_by_id(fund_found['id_user'])
+  donations=dao.donation_dao.getDonationsByFound(id_fund)
   fund_found['full_name']=user['name'] + " " + user['surname']
-  return render_template('show_fund.html',fund=fund_found)
+  print()
+  widthProgressBar= '100' if donations['total']//fund_found['target'] > 1 else donations['total']/fund_found['target']*100
+  return render_template('show_fund.html',fund=fund_found,donations=donations,widthProgressBar=widthProgressBar)
 
 @app.route('/fund/<int:id_fund>/donation')
 def make_donation(id_fund):
   fund_found=dao.fund_dao.getFundByID(id_fund)
+  print(fund_found)
+  if(not fund_found or datetime.datetime.strptime(fund_found['end_timestamp'],"%Y-%m-%d %H:%M:%S") < datetime.datetime.now()):
+      return abort(404,"Raccolta Fondi non trovata / chiusa")
   return render_template('make_donation.html',fund=fund_found)
 
 @app.route('/fund/<int:id_fund>/donate',methods=['POST'])
 def donate(id_fund):
-  fund = request.form.to_dict()
-  fund['image']=request.files['image'].filename
-  fund['id_user']= current_user.get_id()
-  fund['start_timestamp']=datetime.datetime.now()
-
-  errors=dao.fund_dao.checkForErrorsOnParams(fund)
+  don = request.form.to_dict()
+  fund = dao.fund_dao.getFundByID(id_fund)
+  if not fund or datetime.datetime.strptime(fund['end_timestamp'],"%Y-%m-%d %H:%M:%S") < datetime.datetime.now():
+    abort(404,{"message":"Raccolta Fondi non trovata / Chiusa"})
+  
+  errors=dao.donation_dao.checkForErrorsOnParams(don,fund['max_donation'],fund['min_donation'])
 
   if(len(errors) != 0):
     flash(errors)
-    return redirect(url_for('get_new_fund'))
+    return redirect(url_for('make_donation',id_fund=id_fund))
   
-  if(fund['type'] == 'lampo'):
-    fund['end_timestamp']=datetime.datetime.now() + datetime.timedelta(minutes=5)
-  else:
-    fund['end_timestamp']=datetime.datetime.strptime(fund['end_timestamp'],"%Y-%m-%dT%H:%M")
+  if(don['type'] == 'anonima'):
+    don['name']="anonimo"
+    don['surname']="anonimo"
 
-  if(dao.fund_dao.store_fund(fund)):
-    if(request.files['image']):
-      request.files['image'].save('static/img/'+fund['image'])
-    return redirect(url_for('index'))
+  if(dao.donation_dao.store_donation(don,id_fund)):
+    return redirect(url_for('fund',id_fund=id_fund))
   
-  return abort(503,{"message" : "database is not working for some reasons on creating a new fund"})
+  return abort(503,"database is not working for some reasons on creating a new donation")
+
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html',e=e), 404

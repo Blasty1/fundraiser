@@ -1,14 +1,16 @@
 import sqlite3
-def store_fund(donation):
+import html
+from datetime import datetime
+def store_donation(donation,id_fund):
     connection = sqlite3.connect('db/database.db')
     #questa riga va messa prima di creare il cursor
     connection.row_factory = sqlite3.Row #per ottenere dei dizionari come risultati 
 
     cursor = connection.cursor()
-    sql = "INSERT INTO donation(id_fund,amount,created_at,type,name,surname) VALUES(?,?,?,?,?,?)"
+    sql = "INSERT INTO donations(id_fund,amount,created_at,type,name,surname) VALUES(?,?,?,?,?,?)"
     success = False
     try:
-        cursor.execute(sql,(donation['id_fund'],donation['amount'],donation['created_at'],donation['type'],donation['name'],donation['surname']))
+        cursor.execute(sql,(id_fund,donation['amount'],datetime.now().strftime("%Y-%m-%d %H:%M:%S"),donation['type'],donation['name'],donation['surname']))
         connection.commit()
         success = True
     except Exception as e:
@@ -19,47 +21,66 @@ def store_fund(donation):
     connection.close()
 
     return success
-def checkForErrorsOnParams(fund):
-    errors={}
-    fund['type']=html.escape(fund['type']).strip().lower()
-    fund['title']=html.escape(fund['title']).strip()
-    fund['description']=html.escape(fund['description']).strip()
-    fund['end_timestamp']=html.escape(fund['end_timestamp']).strip()
+def getDonationsByFound(id_fund):
+    query = 'SELECT * FROM donations WHERE id_fund == ? ORDER BY datetime(created_at) DESC'
+    connection = sqlite3.connect('db/database.db')
+    connection.row_factory = sqlite3.Row
+    cursor = connection.cursor()
 
-    if  fund['title'] == '':
-        errors['title_']="il campo non puo essere vuoto"
-    if fund['description'] == '':
-        errors['description']="il campo non puo essere vuoto"
-    if fund['type'] != 'lampo' and fund['type'] != 'normale':
-        errors['type']="Selezionare una voce corretta"
-    if not fund['min'].replace(".", "").isnumeric():
-        errors['min']="il campo deve essere un numero reale positivo"
-    if not fund['max'].replace(".", "").isnumeric():
-        errors['max']="il campo deve essere un numero reale positivo"
-    if not fund['target'].replace(".", "").isnumeric():
-        errors['target']="il campo deve essere un numero reale positivo"
-    if fund['type'] == 'normale' and fund['end_timestamp'] == '':
-        errors['end_timestamp']="Con la modalità raccoltà fondo normale è necessario specificare una data di chiusura"
+    cursor.execute(query,(id_fund,))
+    result = [dict(row) for row in cursor]
+    donations={
+        'donations' : result,
+        'total': 0
+    }
+    for donation in donations['donations']:
+        donations['total']+=donation['amount']
+    cursor.close()
+    connection.close()
 
+    return donations
+def checkForErrorsOnParams(don,max,min):
+    errors=[]
+    don['type']=html.escape(don['type']).strip().lower()
+    don['amount']=html.escape(don['amount']).strip()
+    don['address']=html.escape(don['address']).strip()
+    don['name']=html.escape(don['name']).strip()
+    don['surname']=html.escape(don['surname']).strip()
+
+    if don['name'] == '':
+        errors.append("il campo nome non puo essere vuoto")
+    if don['surname'] == '':
+        errors.append("il campo cognome non puo essere vuoto")
+    if don['address'] == '':
+        errors.append('Il campo indirizzo non puo essere vuoto')
+    if not don['cardNumber'].replace(" ","").isnumeric() or len(don['cardNumber'].replace(" ","")) != 16:
+        errors.append('Il campo Numero di Carta non ha un formato corretto')
+    if not don['cardPin'].isdigit():
+        errors.append('Il campo Pin non ha un formato corretto')
+    try:
+        expire=datetime.strptime(don['cardDeadline'],"%Y-%m")
+        if( expire < datetime.now() ):
+            errors.append('La carta risulta essere scaduta')
+    except Exception as e:
+        print(str(e))
+        errors.append('Il formato del campo Scadenza non è corretto')
+
+    if don['type'] != 'anonima' and don['type'] != 'pubblica':
+        errors.append("Selezionare una donazione corretta")
+    
+    if not don['amount'].replace(".", "").isnumeric():
+        errors.append("il campo deve essere un numero reale positivo")
+   
     if len(errors) != 0:
         return errors
     
-    fund['min']=float(fund['min'])
-    fund['max']=float(fund['max'])
-    fund['target']=float(fund['target'])
+    don['amount']=float(don['amount'])
 
-    if fund['min'] < 0:
-        errors['min']="il campo non puo essere negativo"
-    if fund['max'] < 0:
-        errors['min']="il campo non puo essere negativo"
-    if fund['target'] < 0:
-        errors['target']="il campo non puo essere negativo"
-    if fund['max'] < fund['min']:
-        errors['max'] = "Questo valore deve essere più grande del valore minimo"
-    if fund['type'] == 'normale' and (datetime.datetime.strptime(fund['end_timestamp'],"%Y-%m-%dT%H:%M") - fund['start_timestamp']).days > 14:
-        errors['end_timestamp']="La data deve essere entro 14 giorni da oggi"
+    if don['amount'] < 0:
+        errors.append("il campo Importo Donazione non puo essere negativo")
+    if don['amount'] > max:
+        errors.append(f"La donazione massima ammessa è {max}")
+    if don['amount'] < min:
+        errors.append(f"la donazione minima ammessa è {min}")
     
-    if fund['image'] and ( fund['image'].split('.')[-1] not in ['jpeg','jpg','png','gif'] ):
-        errors['image']="L'immagine non ha un estensione accettata"
-
     return errors

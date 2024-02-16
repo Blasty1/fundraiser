@@ -29,7 +29,7 @@ def get_user_by_email(user_email):
     cursor.execute(sql,(user_email,))
 
     user  = cursor.fetchone()
-
+    
 
     cursor.close()
     connection.close()
