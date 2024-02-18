@@ -314,3 +314,6 @@ def page_not_found(e):
 @login_manager.unauthorized_handler
 def unauthorized():
     return render_template('404.html',e={'description':"Accesso non autorizzato: è necessario eseguire il login"}), 404
+
+if __name__ == '__main__':
+  app.run()
