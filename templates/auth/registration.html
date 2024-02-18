@@ -2,9 +2,6 @@
 {% block title %}Registrazione{% endblock %} 
 {% block content %}
 {% with errors = get_flashed_messages() %}
-{% if not errors %}
-    {% set errors=('no errors') %}
-{%  endif %}
 <main>
   <div class="row pt-2">
     <div class="col-3 d-flex align-items-center">
@@ -33,53 +30,58 @@
   </div>
   <section>
     <form class="row g-3 needs-validation px-2 py-2" action="{{ url_for("registration") }}" method="post"  novalidate>
+      {% for error in errors[0] %}
+      <div class="col-12">
+          <div class="alert alert-danger my-0" role="alert">
+              {{ error|e  }}
+            </div>
+      </div>
+        {%  endfor %}
       <div class="col-md-6 position-relative">
         <label for="validationTooltip01" class="form-label">Nome</label>
         <input
           type="text"
-          class="form-control {{ "is-invalid" if errors[0]['name'] else ""}}"
+          class="form-control"
           name="name"
           id="validationTooltip01"
           required
         />
-        <div class="invalid-feedback">{{ errors[0]['name']|e }}</div>
+        <div class="invalid-tooltip">Inserisci il tuo nome</div>
       </div>
       <div class="col-md-6 position-relative">
         <label for="validationTooltip02" class="form-label">Cognome</label>
         <input
           type="text"
-          class="form-control {{ "is-invalid" if errors[0]['surname'] else ""}}"
+          class="form-control"
           name="surname"
           id="validationTooltip02"
           required
         />
-        <div class="invalid-feedback">{{ errors[0]['surname']|e }}</div>
+        <div class="invalid-tooltip">Inserisci il tuo cognome</div>
       </div>
       
       <div class="col-md-6 position-relative">
         <label for="validationTooltip03" class="form-label">Email</label>
         <input
           type="email"
-          class="form-control {{ "is-invalid" if errors[0]["email"] else "" }}"
+          class="form-control"
           name="email"
           id="validationTooltip03"
           required
         />
-        <div class="invalid-tooltip">Please provide a valid email, must be unique for each account( try to perform a login )</div>
-        <div class="invalid-feedback">{{ errors[0]['email']|e }}</div>
+        <div class="invalid-tooltip">Inserisci la tua email in un formato corretto xxx@xxx</div>
       </div>
       <div class="col-md-6 position-relative">
         <label for="validationTooltip04" class="form-label">Password</label>
         <input
           type="password"
-          class="form-control {{ "is-invalid" if errors[0]['password'] else ""}}"
+          class="form-control"
           name="password"
           id="validationTooltip04"
           minlength="8"
           required
         />
-        <div class="invalid-tooltip" id="psswERR">Please provide a valid password with a minimum of 8 characters</div>
-        <div class="invalid-feedback">{{ errors[0]['password']|e }}</div>
+        <div class="invalid-tooltip" id="psswERR">Inserisci una password composta da almeno 8 caratteri</div>
     </div>
       <div class="col-12 pt-2">
         <button class="btn btn-primary" type="submit" id="buttonSubmit">Registrami</button>

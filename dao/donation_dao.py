@@ -22,7 +22,7 @@ def store_donation(donation,id_fund):
 
     return success
 def getDonationsByFound(id_fund):
-    query = 'SELECT * FROM donations WHERE id_fund == ? ORDER BY datetime(created_at) DESC'
+    query = 'SELECT * FROM donations WHERE id_fund == ? ORDER BY amount DESC'
     connection = sqlite3.connect('db/database.db')
     connection.row_factory = sqlite3.Row
     cursor = connection.cursor()
@@ -84,3 +84,4 @@ def checkForErrorsOnParams(don,max,min):
         errors.append(f"la donazione minima ammessa è {min}")
     
     return errors
+    

@@ -5,7 +5,7 @@
 <main>
     <div class="row pt-2">
         <div class="col-12 text-left">
-          <h4>Raccolte Aperte</h4>
+          <h4>Raccolte Aperte {% if request.path != '/' %}di <span class="text-capitalize">{{user.name}} {{user.surname}}</span>{% endif %}</h4>
         </div>
     </div>
       <section>
@@ -16,22 +16,42 @@
                 {% if fund['image'] %}
                 <img src="{{ url_for('static',filename="img/"+fund['image']) }}" class="card-img-top" alt="...">
                 {% else %}
-                <svg class="bd-placeholder-img card-img-top"  xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: Image cap" preserveAspectRatio="xMidYMid slice" focusable="false">
-                    <rect id="imagePlaceHolder"></rect>
+                <svg class="bd-placeholder-img card-img-top"  xmlns="http://www.w3.org/2000/svg" id="imagePlaceHolder" role="img" aria-label="Placeholder: Image cap" preserveAspectRatio="xMidYMid slice" focusable="false">
                 </svg>
                 {% endif %}
                 <div class="card-body">
                   <h5 class="card-title text-capitalize">{{fund['title']|e}}</h5>
-                  <p class="card-text"><span class="type">Tipologia Raccolta: {{fund['type']|e}}</span>
+                  <p class="card-text"><span class="type text-capitalize">Raccolta {{fund['type']|e}}</span>
                     <br>
                     <span class="description">
                     {{fund['description']|e}}
                   </span>
                   </p>
-                  <a href="{{ url_for('fund',id_fund=fund['id_fund']) }}" class="btn btn-primary stretched-link buttonOpenCards">Open</a>
+                  <a href="{{ url_for('fund',id_fund=fund['id_fund']) }}" class="btn btn-primary buttonOpenCards m-1">Apri</a>
+                  {% if user and user['id_user'] == fund['id_user'] %}
+                  <a href="{{ url_for('change_fund',id_fund=fund['id_fund']) }}" class="btn btn-primary  buttonOpenCards m-1">Modifica</a>
+                  <a href="{{ url_for('delete_fund',id_fund=fund['id_fund']) }}" class="btn btn-primary  buttonOpenCards m-1">Cancella</a>
+                  {% endif %}
                 </div>
                 <div class="card-footer text-center">
-                  <small class="text-body-secondary">Tempo rimanente: <br>{{fund['remaining_time']|e}}</small>
+                  <small class="text-body-secondary">Tempo rimanente: <br>
+                    {% if fund['remaining_time'].days != 0 %}
+                      {% if fund['remaining_time'].days == 1%}
+                        1 giorno
+                      {% else %}
+                        {{fund['remaining_time'].days|e}} giorni
+                      {% endif %}
+                    {% endif %}
+                    {% if fund['remaining_time'].hours != '0' %} 
+                      {{fund['remaining_time'].hours|e}} ore
+                    {% endif %}
+                    {% if fund['remaining_time'].minutes != '00' %}
+                      {{fund['remaining_time'].minutes |e}} minuti
+                    {% endif %}
+                    {% if fund['remaining_time'].seconds %}
+                      {{fund['remaining_time'].seconds |e}} secondi
+                    {% endif %}
+                  </small>
                 </div>
               </div>
             </div>

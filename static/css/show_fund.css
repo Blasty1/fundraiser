@@ -23,15 +23,19 @@ main,aside > div{
 #contentPart{
     justify-content: space-between;
 }
-#buttonDona{
+.buttonOpenCards{
+    width: 100%;
+    background-color: rgb(0, 110, 58);
+    border: none;
     border-top-left-radius: 1em;
     border-top-right-radius: 1em;
     border-bottom-right-radius: 1em;
     border-bottom-left-radius: 1em;
-    background-color: rgb(0, 110, 58);
     color: #fff;
-    width: 100%;
-    border: none;
+}
+.buttonOpenCards:hover{
+    color: rgb(0, 110, 58);
+    background: none;
 }
 #imagePlaceHolder{
     width:100%;
@@ -61,4 +65,21 @@ main,aside > div{
 }
 .fit-content{
     height: fit-content;
+}
+
+#buttonFundClosed{
+    color: #fff;
+    border: none;
+    width: 100%;
+    cursor: unset;
+}
+#buttonFundClosed:hover
+{
+    pointer-events: none;
+}
+.targetNotReached{
+    background-color: #dc3545;
+}
+.targetReached{
+    background-color: rgb(2, 169, 92);
 }

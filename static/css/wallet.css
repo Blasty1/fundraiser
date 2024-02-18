@@ -1,0 +1,50 @@
+main {
+    background-color: #fff;
+    border-top-left-radius: 2rem;
+    border-top-right-radius: 2rem;
+    border-bottom-right-radius:2em;
+    border-bottom-left-radius: 2rem; 
+    padding:1em; 
+}
+
+/* Credit Card Animation  */
+
+svg {
+    opacity:0;
+    width:80%;
+    max-height:95%;
+ 
+  }
+
+/* STOP credit card animation */
+
+.walletInfo{
+    width: 76%;
+    background-color: #fff !important;
+    border: none;
+}
+.card-subtitle{
+    color:#271b13 !important
+}
+small
+{
+    color:#888
+}
+.buttonMoney{
+    background: rgb(0, 110, 58) !important;
+}
+.borderWidth0{
+    border-width: 0 !important;
+}
+li{
+    transition: transform .3s ease-out;
+}
+li:hover{
+    transform: translate(0, -5px);
+}
+ol {
+
+    max-height: 43vh;
+
+  overflow: auto;
+}

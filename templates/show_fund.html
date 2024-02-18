@@ -2,8 +2,8 @@
 {% block links %}    <link rel="stylesheet" href="{{url_for('static',filename="/css/show_fund.css")}}"> {% endblock %}
 {% block title %}Raccolta Fondi{% endblock %}
 {% block content %}
-<aside class="d-flex col-12 col-lg-4">
-    <div class="row w-100 fit-content">
+<aside class="col-12 col-lg-4">
+    <div class="row w-100 fit-content mx-auto">
     <div class="col-12">
     <h3>Donazioni</h3>
     <div id="divTable">
@@ -17,7 +17,13 @@
         <tbody>
             {% for donation in donations['donations'] %}
           <tr>
-            <td class="text-capitalize">{{donation['name']}} {{donation['surname']}}</td>
+            <td class="text-capitalize">
+                {%  if donation['name'] != 'anonimo' %}
+                {{donation['name']}} {{donation['surname']}}
+                {% else %}
+                {{donation['name']}}
+                {% endif %}
+            </td>
             <td>{{donation['amount']}}&euro;</td>
           </tr>
           {% endfor %}
@@ -25,8 +31,22 @@
       </table>
       </div>
       </div>
-    <div class="col-12 pt-2 d-flex align-items-end">
-        <a href="{{ url_for('make_donation',id_fund=fund['id_fund']) }}" class="p-2 btn btn-info" id="buttonDona" role="button">Dona</a>
+    <div class="col-12 pt-2">
+        {%  if fund['status'] == 'aperta' %}
+            <a href="{{ url_for('make_donation',id_fund=fund['id_fund']) }}" class="p-2 btn btn-primary buttonOpenCards m-1"  role="button">Dona</a>
+            {% if privilege  %}
+            <a href="{{ url_for('change_fund',id_fund=fund['id_fund']) }}" class="btn btn-primary  buttonOpenCards m-1 p-2 ">Modifica</a>
+            <a href="{{ url_for('delete_fund',id_fund=fund['id_fund']) }}" class="btn btn-primary  buttonOpenCards m-1  p-2 ">Cancella</a>
+            {% endif %}
+        {% else %}
+        <div id="buttonFundClosed" class="btn btn-primary {% if donations['total'] >= fund['target'] %}targetReached{% else %}targetNotReached{% endif %}">
+               {% if donations['total'] >= fund['target'] %}
+                Obiettivo raggiunto!
+                {% else %}
+                Obiettivo non raggiunto!
+                {% endif %}
+        </div>
+        {% endif %}
     </div>
     </div>
 </aside>
@@ -34,7 +54,7 @@
     <div class="row w-100 mx-auto">
         <div class="col-12 pb-1 d-flex justify-content-between">
             <h3 class="text-capitalize">{{ fund['title'] }}</h3>
-            <h3 class="status-open">Aperta</h3>            
+            <h3 class="text-capitalize {% if fund['status'] == 'aperta' %}status-open{% else %}status-close{% endif %}">{{ fund['status'] }}</h3>            
         </div>
         <div class="col-12 row pe-0">
             <div class="col-6"><p class="text-capitalize">Raccolta Fondi {{ fund['type']|e }}</p></div>
@@ -70,7 +90,8 @@
             </p>
         </div>
         <div class="col-12 ">
-            <p class="text-end">Fondatore Raccolta: <i>{{ fund['full_name'] }}</i></p>
+            <p class="text-end mb-1">Raccolta creata da <i class="text-capitalize">{{ fund['full_name'] }}</i></p>
+            <p class="text-end">Raccolta creata il <i>{{ fund['start_timestamp'] }}</i></p>
         </div>
     </div>
 </main>

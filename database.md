@@ -25,11 +25,11 @@
     6. type  &rarr; varchar(100)
     7. Name &rarr; varchar(100)
     8. Surname  &rarr; varchar(100)
-4. TransactionToWallet
-    1. transaction_id  &rarr; integer ( primary key )
+4. Wallet ( VIEW )
+    1. id_fund &rarr; integer ( foreign key )
     2. id_user &rarr; integer ( foreign key )
-    3. amount  &rarr; float
-    4. created_ar &rarr; timestamp
+    3. totalReached  &rarr; float
+    4. created_at &rarr; timestamp
 
 
 

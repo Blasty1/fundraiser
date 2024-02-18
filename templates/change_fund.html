@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+{% block links %}    <link rel="stylesheet" href="{{url_for('static',filename="/css/change_donation.css")}}"> {% endblock %}
+{% block title %}Home{% endblock %}
+{% block content %}
+{% with errors = get_flashed_messages() %}
+    <main>
+      <div class="row pt-2">
+        <div class="ms-1 col-3 d-flex align-items-center">
+          <div>
+            <a href="{{url_for("get_my_funds")}}">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              fill="currentColor"
+              class="bi bi-arrow-return-left iconSize"
+              viewBox="0 0 16 16"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M14.5 1.5a.5.5 0 0 1 .5.5v4.8a2.5 2.5 0 0 1-2.5 2.5H2.707l3.347 3.346a.5.5 0 0 1-.708.708l-4.2-4.2a.5.5 0 0 1 0-.708l4-4a.5.5 0 1 1 .708.708L2.707 8.3H12.5A1.5 1.5 0 0 0 14 6.8V2a.5.5 0 0 1 .5-.5"
+              />
+            </svg>
+        </a>
+          </div>
+        </div>
+        <div class="col-6 text-center">
+          <h3 class="text-capitalize">Modifica Raccolta Fondi</h3>
+        </div>
+        <div class="col-3"></div>
+      </div>
+      <section>
+        <form class="row g-3 needs-validation px-2 py-2" method="post" action="{{url_for('update',id_fund=fund['id_fund'])}}"   enctype="multipart/form-data" novalidate>
+        {% for error in errors[0] %}
+            <div class="col-12">
+                <div class="alert alert-danger my-0" role="alert">
+                    {{ error|e  }}
+                </div>
+            </div>
+        {%  endfor %}
+        <div class="col-md-6 position-relative">
+
+          <label for="validationTooltip01" class="form-label">Titolo</label>
+          <input
+            type="text"
+            class="form-control"
+            name="title"
+            id="validationTooltip01"
+            value="{{ fund['title'] }}"
+            required
+          />
+          <div class="invalid-feedback">Formato non valido</div>
+        </div>
+  
+  
+    <div class="col-md-6 position-relative">
+      <label for="validationTooltip02" class="form-label">Immagine</label>
+      <input 
+          type="file" 
+          class="form-control" 
+          id="validationTooltip02" 
+          aria-label="immagine"
+          name="image"
+          accept="image/png, image/jpeg"
+          value="{{ fund['image'] }}"
+      />
+      {% if fund['image'] %}
+      <p>File precedentemente inserito: {{ fund['image']|e }}</p>
+      {% endif %}
+      <div class="invalid-tooltip">Formato non valido</div>
+    </div>
+  
+        <div class="col-md-4 position-relative">
+          <label for="validationTooltip03" class="form-label">Obiettivo da Raggiungere</label>
+          <input
+            type="number"
+            class="form-control"
+            name="target"
+            step=".01"
+            id="validationTooltip03"
+            min="0"
+            value="{{ fund['target']|e }}"
+            required
+          />
+          <div class="invalid-tooltip">Formato non valido : numero maggiore di 0</div>
+  
+          
+        </div>
+        <div class="col-md-4 position-relative">
+          <label for="validationTooltip04" class="form-label">Donazione Minima</label>
+          <input
+            type="number"
+            class="form-control"
+            name="min"
+            step=".01"
+            id="validationTooltip04"
+            min="0"
+            value="{{ fund['min_donation']|e }}"
+            required
+          />
+          <div class="invalid-tooltip">Formato non valido : numero maggiore di 0</div>
+  
+          
+        </div>
+        
+        <div class="col-md-4 position-relative">
+          <label for="validationTooltip05" class="form-label">Donazione Massima</label>
+          <input
+            type="number"
+            step=".01"
+            class="form-control"
+            name="max"
+            id="validationTooltip05"
+            min="0"
+            value="{{ fund['max_donation']|e }}"
+            required
+          />
+          <div class="invalid-tooltip">Formato non valido : numero maggiore di 0</div>
+  
+          
+        </div>
+      
+  
+        <div class="col-md-6 position-relative">
+          <label for="validationTooltip06" class="form-label">Tipo di Raccolta</label>
+          <select class="form-select"  name="type" aria-label="Default select example" id="validationTooltip06" required>
+            <option {% if fund['type'] == 'lampo' %} selected {% endif %} value="lampo">Lampo</option>
+            <option {% if fund['type'] == 'normale' %} selected {% endif %} value="normale">Normale</option>
+          </select>
+          <div class="invalid-tooltip">Scegli una delle opzioni</div>
+        </div>
+        <div class="col-md-6 position-relative">
+          <label for="validationTooltip07" class="form-label">Data Chiusura ( valida solo con Raccolta Normale )</label>
+          <input
+            type="datetime-local"
+            min="{{minDate}}" 
+            max="{{maxDate}}"
+            class="form-control"
+            name="end_timestamp"
+            id="validationTooltip07"
+            min="0"
+            value="{{ fund['end_timestamp']|e }}"
+          />
+          <div class="invalid-tooltip">La data deve entrare nel seguente range: {{minDate}} : {{maxDate}}</div>
+        </div>
+  
+        <div class="col-md-12 position-relative">
+          <label for="validationTooltip08" class="form-label">Descrizione</label>
+          <textarea
+            placeholder="Descrizione della Raccolta Fondi"
+            class="form-control"
+            name="description"
+            id="validationTooltip08"
+            required>{{ fund['description']|e }}</textarea>
+            <div class="invalid-tooltip">Formato non valido</div>
+      </div>
+          <div class="col-12 pt-2">
+            <button class="btn btn-primary" type="submit" id="buttonSubmit">Modifica</button>
+          </div>
+        </form>
+      </section>
+    </main>
+{% endwith %}
+    <script>
+    (function () {
+        'use strict'
+      
+        // Fetch all the forms we want to apply custom Bootstrap validation styles to
+        var forms = document.querySelectorAll('.needs-validation')
+      
+        // Loop over them and prevent submission
+        Array.prototype.slice.call(forms)
+          .forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+              if (!form.checkValidity()) {
+                event.preventDefault()
+                event.stopPropagation()
+              }
+              
+              form.classList.add('was-validated')
+            }, false)
+          })
+      })()
+    </script>
+    {% endblock %}
+    
