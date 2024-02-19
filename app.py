@@ -128,11 +128,15 @@ def new_fund():
     fund['end_timestamp']=(datetime.datetime.now() + datetime.timedelta(minutes=5)).strftime("%Y-%m-%d %H:%M:%S")
   else:
     fund['end_timestamp']=datetime.datetime.strptime(fund['end_timestamp'],"%Y-%m-%dT%H:%M")
+
+  if fund['image']:
+    fund['image']=f"{datetime.datetime.now()}.{fund['image'].split('.')[-1]}" # having a unique name for each image avoiding errors
   
   fund['start_timestamp']=fund['start_timestamp'].strftime("%Y-%m-%d %H:%M:%S")
+  
   if(dao.fund_dao.store_fund(fund)):
-    if(request.files['image']):
-      request.files['image'].save('static/img/'+fund['image'])
+    if(fund['image']):
+      request.files['image'].save(app.static_folder+'img/'+fund['image'])
     return redirect(url_for('index'))
   
   return abort(503,"database is not working for some reasons on creating a new fund")
@@ -274,10 +278,16 @@ def update(id_fund):
   else:
     fund['end_timestamp']=datetime.datetime.strptime(fund['end_timestamp'],"%Y-%m-%dT%H:%M")
 
+  if fund_old['image']:
+    os.remove(os.path.join(app.static_folder,f"img/{fund_old['image']}"))
+
+  if fund['image']:
+    fund['image']=f"{datetime.datetime.now()}.{fund['image'].split('.')[-1]}" # having a unique name for each image avoiding errors
+
 
   if(dao.fund_dao.update_found(fund)):
-    if(request.files['image']):
-      request.files['image'].save('static/img/'+fund['image'])
+    if(fund['image']):
+      request.files['image'].save(app.static_folder+'/img/'+fund['image'])
     return redirect(url_for('get_my_funds'))
   
   return abort(503,"database is not working for some reasons on updating a fund")

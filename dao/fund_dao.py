@@ -92,10 +92,11 @@ def checkForErrorsOnParams(fund):
                         
 def getAllOpens():
     query = 'SELECT * FROM funds WHERE datetime(end_timestamp) > datetime("now","localtime") ORDER BY datetime(end_timestamp)'
+    print("test",config.DB_PATH)
+
     connection = sqlite3.connect(config.DB_PATH)
     connection.row_factory = sqlite3.Row
     cursor = connection.cursor()
-
     cursor.execute(query)
     result = [dict(row) for row in cursor]
 

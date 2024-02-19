@@ -24,7 +24,7 @@ def store_donation(donation,id_fund):
     return success
 def getDonationsByFound(id_fund):
     query = 'SELECT * FROM donations WHERE id_fund == ? ORDER BY amount DESC'
-    connection = sqlite3.connect(DB_PATH)
+    connection = sqlite3.connect(config.DB_PATH)
     connection.row_factory = sqlite3.Row
     cursor = connection.cursor()
 
