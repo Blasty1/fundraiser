@@ -1,8 +1,9 @@
 import sqlite3
 import html
 from datetime import datetime
+import config
 def store_donation(donation,id_fund):
-    connection = sqlite3.connect('db/database.db')
+    connection = sqlite3.connect(config.DB_PATH)
     #questa riga va messa prima di creare il cursor
     connection.row_factory = sqlite3.Row #per ottenere dei dizionari come risultati 
 
@@ -23,7 +24,7 @@ def store_donation(donation,id_fund):
     return success
 def getDonationsByFound(id_fund):
     query = 'SELECT * FROM donations WHERE id_fund == ? ORDER BY amount DESC'
-    connection = sqlite3.connect('db/database.db')
+    connection = sqlite3.connect(DB_PATH)
     connection.row_factory = sqlite3.Row
     cursor = connection.cursor()
 

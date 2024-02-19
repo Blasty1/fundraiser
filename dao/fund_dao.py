@@ -1,8 +1,9 @@
 import sqlite3
 import html
 import datetime
+import config
 def store_fund(fund):
-    connection = sqlite3.connect('db/database.db')
+    connection = sqlite3.connect(config.DB_PATH)
     #questa riga va messa prima di creare il cursor
     connection.row_factory = sqlite3.Row #per ottenere dei dizionari come risultati 
 
@@ -23,7 +24,7 @@ def store_fund(fund):
     return success
 
 def update_found(fund):
-    connection = sqlite3.connect('db/database.db')
+    connection = sqlite3.connect(config.DB_PATH)
     #questa riga va messa prima di creare il cursor
     connection.row_factory = sqlite3.Row #per ottenere dei dizionari come risultati 
 
@@ -91,7 +92,7 @@ def checkForErrorsOnParams(fund):
                         
 def getAllOpens():
     query = 'SELECT * FROM funds WHERE datetime(end_timestamp) > datetime("now","localtime") ORDER BY datetime(end_timestamp)'
-    connection = sqlite3.connect('db/database.db')
+    connection = sqlite3.connect(config.DB_PATH)
     connection.row_factory = sqlite3.Row
     cursor = connection.cursor()
 
@@ -119,7 +120,7 @@ def getAllOpens():
     return result
 
 def getFundByID(id_fund):
-    connection = sqlite3.connect('db/database.db')
+    connection = sqlite3.connect(config.DB_PATH)
     #questa riga va messa prima di creare il cursor
     connection.row_factory = sqlite3.Row #per ottenere dei dizionari come risultati 
     cursor = connection.cursor()
@@ -140,7 +141,7 @@ def getAllClosed():
     queryInner = 'SELECT funds.id_fund,SUM(amount) AS totalReached FROM funds,donations WHERE donations.id_fund = funds.id_fund AND datetime(end_timestamp) < datetime("now","localtime") GROUP BY funds.id_fund'
     queryOuter= f"SELECT * FROM funds LEFT JOIN ({queryInner}) AS innerQuery ON funds.id_fund = innerQuery.id_fund WHERE datetime(end_timestamp) < datetime('now','localtime') ORDER BY (totalReached - target) DESC"
     print(queryOuter)
-    connection = sqlite3.connect('db/database.db')
+    connection = sqlite3.connect(config.DB_PATH)
     connection.row_factory = sqlite3.Row
     cursor = connection.cursor()
 
@@ -154,7 +155,7 @@ def getAllClosed():
 
 def getFundsByUserID(id_user):
     query = 'SELECT * FROM funds WHERE datetime(end_timestamp) > datetime("now","localtime") AND id_user = ? ORDER BY datetime(end_timestamp)'
-    connection = sqlite3.connect('db/database.db')
+    connection = sqlite3.connect(config.DB_PATH)
     connection.row_factory = sqlite3.Row
     cursor = connection.cursor()
 
@@ -183,7 +184,7 @@ def getFundsByUserID(id_user):
     return result
 
 def deleteFund(fund_id):
-    connection = sqlite3.connect('db/database.db')
+    connection = sqlite3.connect(config.DB_PATH)
     cursor = connection.cursor()
     sql="DELETE FROM funds WHERE id_fund = ?"
     success = False

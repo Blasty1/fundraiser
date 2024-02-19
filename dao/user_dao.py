@@ -1,6 +1,7 @@
 import sqlite3
+import config
 def store_user(user):
-    connection = sqlite3.connect('db/database.db')
+    connection = sqlite3.connect(config.DB_PATH)
     #questa riga va messa prima di creare il cursor
     connection.row_factory = sqlite3.Row #per ottenere dei dizionari come risultati 
 
@@ -21,7 +22,7 @@ def store_user(user):
     return success
 
 def get_user_by_email(user_email):
-    connection = sqlite3.connect('db/database.db')
+    connection = sqlite3.connect(config.DB_PATH)
     #questa riga va messa prima di creare il cursor
     connection.row_factory = sqlite3.Row #per ottenere dei dizionari come risultati 
     cursor = connection.cursor()
@@ -37,7 +38,7 @@ def get_user_by_email(user_email):
     return user
 
 def get_user_by_id(user_id):
-    connection = sqlite3.connect('db/database.db')
+    connection = sqlite3.connect(config.DB_PATH)
 
     #questa riga va messa prima di creare il cursor
     connection.row_factory = sqlite3.Row #per ottenere dei dizionari come risultati 
