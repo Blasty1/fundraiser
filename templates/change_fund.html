@@ -65,8 +65,11 @@
           value="{{ fund['image'] }}"
       />
       {% if fund['image'] %}
-      <p>File precedentemente inserito: {{ fund['image']|e }}</p>
-      {% endif %}
+      <div class="form-check form-switch">
+        <input class="form-check-input" name="imageChecked" type="checkbox" role="switch" value="Keep" id="flexSwitchCheckDefault" checked>
+        <label class="form-check-label" for="flexSwitchCheckDefault">Mantieni immagine precedente <small>( basta inserirne una nuova per sostituirla )</small></label>
+      </div>
+            {% endif %}
       <div class="invalid-tooltip">Formato non valido</div>
     </div>
   

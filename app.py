@@ -106,8 +106,8 @@ def logout():
 @app.route('/new_fund')
 @login_required
 def get_new_fund():
-  minDate=datetime.date.today() 
-  maxDate=(datetime.date.today() + datetime.timedelta(days=14))
+  minDate=datetime.datetime.now() .strftime("%Y-%m-%dT%H:%S")
+  maxDate=(datetime.date.today() + datetime.timedelta(days=14)).strftime("%Y-%m-%dT%H:%S")
   return render_template('new_fund.html',minDate=minDate,maxDate=maxDate)
 
 @app.route('/new_fund',methods=['POST'])
@@ -198,6 +198,23 @@ def funds_closed():
   funds=dao.fund_dao.getAllClosed()
   return render_template('funds_closed.html',funds=funds)
 
+@app.route('/funds/search')
+def get_search():
+  funds=[]
+  return render_template('search_funds.html',funds=funds,past_search={})
+
+@app.route('/funds/search',methods=['POST'])
+def search():
+  funds=[]
+  search=request.form.to_dict()
+  errors=dao.fund_dao.checkForErrorsForSearching(search)
+
+  if(len(errors) != 0):
+    flash(errors)
+    return redirect(url_for('get_search'))
+  
+  funds=dao.fund_dao.searchForFundsWithOption(search)
+  return render_template('search_funds.html',funds=funds,past_search=search)
 
 @app.route('/me/funds')
 @login_required
@@ -240,8 +257,8 @@ def change_fund(id_fund):
     return abort(404,"Non puoi modificare una raccolta dati non tua")
   
   fund['end_timestamp'] = datetime.datetime.strptime(fund['end_timestamp'],"%Y-%m-%d %H:%M:%S").strftime("%Y-%m-%dT%H:%M")
-  minDate=datetime.date.today() 
-  maxDate=(datetime.datetime.strptime(fund['start_timestamp'],"%Y-%m-%d %H:%M:%S") + datetime.timedelta(days=14)).strftime("%Y-%m-%d")
+  minDate=datetime.datetime.now().strftime("%Y-%m-%dT%H:%S")
+  maxDate=(datetime.datetime.strptime(fund['start_timestamp'],"%Y-%m-%d %H:%M:%S") + datetime.timedelta(days=14)).strftime("%Y-%m-%dT%H:%S")
   return render_template('change_fund.html',fund=fund,minDate=minDate,maxDate=maxDate)
 
 @app.route('/me/fund/<int:id_fund>/update',methods=['POST'])
@@ -278,15 +295,18 @@ def update(id_fund):
   else:
     fund['end_timestamp']=datetime.datetime.strptime(fund['end_timestamp'],"%Y-%m-%dT%H:%M")
 
-  if fund_old['image']:
+  if fund_old['image'] and  (fund['image'] or not "imageChecked" in fund ):
     os.remove(os.path.join(app.static_folder,f"img/{fund_old['image']}"))
 
   if fund['image']:
     fund['image']=f"{datetime.datetime.now()}.{fund['image'].split('.')[-1]}" # having a unique name for each image avoiding errors
+  else:
+    if "imageChecked" in fund:
+      fund['image']=fund_old['image']
 
 
   if(dao.fund_dao.update_found(fund)):
-    if(fund['image']):
+    if(fund['image'] and fund['image'] != fund_old['image']):
       request.files['image'].save(app.static_folder+'/img/'+fund['image'])
     return redirect(url_for('get_my_funds'))
   

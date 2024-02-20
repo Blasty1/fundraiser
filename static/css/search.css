@@ -1,0 +1,22 @@
+#buttonSubmit{
+    width: 100%;
+    background-color: rgb(2, 169, 92);
+    border: #000;
+}
+a {
+    color: #000;
+}
+a:hover { 
+    color: rgb(2, 169, 92) !important; 
+}
+.fontSizeSmall{
+    font-size: 0.875rem;
+}
+main {
+    background-color: #fff;
+    border-bottom-right-radius: 2em;
+    border-bottom-left-radius: 2em;
+    padding-bottom: 1.5em;
+    padding-left: 1em;
+    padding-right: 1em;
+}

@@ -1,0 +1,191 @@
+{% extends "base.html" %} {% block links %} <link rel="stylesheet"
+href="{{url_for('static',filename="/css/search.css")}}"> <link rel="stylesheet"
+href="{{url_for('static',filename="/css/index.css")}}"> {% endblock %} {% block
+title %}Search{% endblock %} {% block content %} {% with errors =
+get_flashed_messages() %}
+<main>
+  <section>
+    <div class="row pt-2">
+        <div class="col-12 text-left">
+          <h4>Cerca Raccolte Fondi</h4>
+        </div>
+    </div>
+    <form
+      class="row g-3 needs-validation px-2 py-2"
+      method="post"
+      action="{{url_for('search')}}"
+      novalidate
+    >
+      {% for error in errors[0] %}
+      <div class="col-12">
+        <div class="alert alert-danger my-0" role="alert">{{ error|e }}</div>
+      </div>
+      {% endfor %}
+      <div class="col-md-6 position-relative">
+        <input
+          type="text"
+          class="form-control form-control-sm"
+          name="title"
+          id="validationTooltip01"
+          placeholder="Titolo"
+          value="{{ past_search['title'] }}"
+        />
+        <div class="invalid-feedback">Formato non valido</div>
+      </div>
+      <div class="col-md-6 position-relative">
+        <select
+          class="form-select form-select-sm"
+          name="type"
+          aria-label="Default select example"
+          id="validationTooltip02"
+        >
+          <option value="lampo" {% if past_search['type'] == 'lampo' %} selected {% endif %}>Lampo</option>
+          <option value="normale" {% if past_search['type'] == 'normale' %} selected {% endif %} >Normale</option>
+        </select>
+        <div class="invalid-tooltip">Scegli una delle opzioni</div>
+      </div>
+
+      <div class="col-md-4 position-relative">
+        <input
+          type="number"
+          class="form-control form-control-sm"
+          name="target"
+          step=".01"
+          id="validationTooltip03"
+          min="0"
+          placeholder="Obiettivo Massimo da Raggiungere"
+          value="{{ past_search['target'] }}"
+        />
+        <div class="invalid-tooltip">
+          Formato non valido : numero maggiore di 0
+        </div>
+      </div>
+      <div class="col-md-4 position-relative">
+        <input
+          type="number"
+          class="form-control form-control-sm"
+          name="min"
+          step=".01"
+          id="validationTooltip04"
+          min="0"
+          placeholder="Donazione Minima"
+          value="{{ past_search['min'] }}"
+        />
+        <div class="invalid-tooltip">
+          Formato non valido : numero maggiore di 0
+        </div>
+      </div>
+
+      <div class="col-md-4 position-relative">
+        <input
+          type="number"
+          step=".01"
+          class="form-control form-control-sm"
+          name="max"
+          id="validationTooltip05"
+          min="0"
+          placeholder="Donazione Massima"
+          value="{{ past_search['max'] }}"
+        />
+        <div class="invalid-tooltip">
+          Formato non valido : numero maggiore di 0
+        </div>
+      </div>
+
+      <div class="col-md-7 position-relative input-group">
+        <span class="input-group-text fontSizeSmall">Intervallo Data di Creazione</span>
+        <input
+          type="datetime-local"
+          class="form-control form-control-sm"
+          name="start_timestamp_s"
+          id="validationTooltip06"
+          min="0"
+          placeholder="Data Apertura"
+          value="{{ past_search['start_timestamp_s'] }}"
+        />
+        <input
+          type="datetime-local"
+          class="form-control form-control-sm"
+          name="start_timestamp_e"
+          id="validationTooltip07"
+          value="{{ past_search['start_timestamp_e'] }}"
+        />
+        <div class="invalid-tooltip">
+            Formato non valido 
+        </div>
+      </div>
+      <div class="col-md-5 mx-auto">
+        <button class="btn btn-primary btn-sm" type="submit" id="buttonSubmit">
+          Cerca
+        </button>
+      </div>
+    </form>
+  </section>
+</main>
+  <article>
+    <div class="row pt-2">
+        <div class="col-12 text-left">
+          <h4>Raccolte Trovate</h4>
+        </div>
+    </div>
+      <section>
+        <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4">
+            {% for fund in funds %}
+            <div class="col">
+              <div class="card h-100">
+                {% if fund['image'] %}
+                <img src="{{ url_for('static',filename="img/"+fund['image']) }}" class="card-img-top" alt="...">
+                {% else %}
+                <svg class="bd-placeholder-img card-img-top"  xmlns="http://www.w3.org/2000/svg" id="imagePlaceHolder" role="img" aria-label="Placeholder: Image cap" preserveAspectRatio="xMidYMid slice" focusable="false">
+                </svg>
+                {% endif %}
+                <div class="card-body">
+                  <h5 class="card-title text-capitalize">{{fund['title']|e}}</h5>
+                  <p class="card-text"><span class="type text-capitalize">Raccolta {{fund['type']|e}}</span>
+                    <br>
+                    <span class="description">
+                    {{fund['description']|e}}
+                  </span>
+                  </p>
+                  <a href="{{ url_for('fund',id_fund=fund['id_fund']) }}" class="btn btn-primary buttonOpenCards m-1">Apri</a>
+                  {% if user and user['id_user'] == fund['id_user'] %}
+                  <a href="{{ url_for('change_fund',id_fund=fund['id_fund']) }}" class="btn btn-primary  buttonOpenCards m-1">Modifica</a>
+                  <a href="{{ url_for('delete_fund',id_fund=fund['id_fund']) }}" class="btn btn-primary  buttonOpenCards m-1">Cancella</a>
+                  {% endif %}
+                </div>
+                <div class="card-footer text-center">
+                    <small class="text-body-secondary">Aperta il {{fund['start_timestamp']|e}}</small>
+                    <br>
+                    <small class="text-body-secondary">Chiusa il {{fund['end_timestamp']|e}}</small>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </article>
+{% endwith %}
+<script>
+  (function () {
+    "use strict";
+
+    // Fetch all the forms we want to apply custom Bootstrap validation styles to
+    var forms = document.querySelectorAll(".needs-validation");
+
+    // Loop over them and prevent submission
+    Array.prototype.slice.call(forms).forEach(function (form) {
+      form.addEventListener(
+        "submit",
+        function (event) {
+          if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+          }
+
+          form.classList.add("was-validated");
+        },
+        false
+      );
+    });
+  })();
+</script>
+{% endblock %}
