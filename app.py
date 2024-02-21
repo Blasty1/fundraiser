@@ -147,7 +147,7 @@ def new_fund():
     fund['end_timestamp']=datetime.datetime.strptime(fund['end_timestamp'],"%Y-%m-%dT%H:%M")
 
   if fund['image']:
-    fund['image']=f"{datetime.datetime.now()}.{fund['image'].split('.')[-1]}" # having a unique name for each image avoiding errors
+    fund['image']=f"{str(datetime.datetime.now()).replace(' ','')}.{fund['image'].split('.')[-1]}" # having a unique name for each image avoiding errors
   
   fund['start_timestamp']=fund['start_timestamp'].strftime("%Y-%m-%d %H:%M:%S")
   
@@ -218,7 +218,8 @@ def funds_closed():
 
 @app.route('/funds/search')
 def get_search():
-  return render_template('search_funds.html',funds=[],past_search={})
+  funds=[]
+  return render_template('search_funds.html',funds=funds,past_search={})
 
 @app.route('/funds/search',methods=['POST'])
 def search():
@@ -319,7 +320,7 @@ def update(id_fund):
       print("error",str(e))
           
   if fund['image']:
-    fund['image']=f"{datetime.datetime.now()}.{fund['image'].split('.')[-1]}" # having a unique name for each image avoiding errors
+    fund['image']=f"{str(datetime.datetime.now()).replace(' ','')}.{fund['image'].split('.')[-1]}" # having a unique name for each image avoiding errors
   else:
     if "imageChecked" in fund:
       fund['image']=fund_old['image'] #se non ho selezionato nessuna immagine e voglio mantenere l'immagine precedente
