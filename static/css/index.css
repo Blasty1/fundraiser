@@ -9,7 +9,7 @@
     border: none;
 }
 .buttonOpenCards:hover{
-    background-color: white;
+    background-color: #fff;
     color:rgb(2, 169, 92);
 }
 .description
@@ -27,4 +27,8 @@
 }
 .card:hover{
     transform: translate(0, -15px);
+}
+.card-footer{
+    background-color:rgb(2, 169, 92);
+    color: #fff !important;
 }

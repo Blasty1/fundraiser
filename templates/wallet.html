@@ -75,7 +75,7 @@
               <g fill="#fff" stroke-linecap="round">
                 <g clip-path="url(#txtBoxes)">
                   <text x="45" y="60" font-size="26">Debit</text>
-                  <text x="45" y="320" font-size="21" class="text-capitalize">{{ user['name'] }} {{ user['surname'] }}</text>
+                  <text x="45" y="320" font-size="21" class="text-capitalize">{{ user['name']|e }} {{ user['surname']|e }}</text>
                   <text x="470" y="320" font-size="26">Wallet</text>    
                 </g>
                 <path fill="none" stroke="#fff" stroke-width="2.4" d="M42.5,146.5c2,2,2,6.3,0,8.2 M57,163.7c5.1-5.9,5.1-19.8,0-26.3 M52.1,160.7c4.4-4.5,4.9-15.2,0-20.2
@@ -109,10 +109,10 @@
                 {% for transaction in wallet %}
                 <li class="list-group-item borderWidth0 d-flex justify-content-between align-items-center">
                   <div class="ms-2 me-auto">
-                    <div class="fw-bold text-capitalize"> <a href="{{ url_for('fund',id_fund=transaction['id_fund']) }}" class="stretched-link text-decoration-none text-dark">{{ transaction['title'] }}</a></div>
+                    <div class="fw-bold text-capitalize"> <a href="{{ url_for('fund',id_fund=transaction['id_fund']) }}" class="stretched-link text-decoration-none text-dark">{{ transaction['title']|e }}</a></div>
                     <small>Data Acconto: {{ transaction['created_at']|e }}</small>
                   </div>
-                  <span class="badge bg-primary buttonMoney">&plus; {{ transaction['totalReached'] }}&euro;</span>
+                  <span class="badge bg-primary buttonMoney">&plus; {{ transaction['totalReached']|e }}&euro;</span>
                 </li>
                 {% endfor %}
             </ol>

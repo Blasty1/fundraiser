@@ -27,10 +27,15 @@ def index():
 
 @app.route('/get/registration')
 def get_registration():
+  if current_user.is_authenticated:
+    return redirect(url_for('index'))
   return render_template('auth/registration.html')
 
 @app.route('/registration',methods=['POST'])
 def registration():
+  if current_user.is_authenticated:
+    return redirect(url_for('index'))
+
   new_user = request.form.to_dict()
   errors=[]
   new_user['name']=html.escape(new_user['name'].strip())
@@ -59,17 +64,29 @@ def registration():
     return redirect(url_for('get_registration'))
 
   if(dao.user_dao.store_user(new_user)):
-    return redirect(url_for('get_login'))
+    new_user=dao.user_dao.get_user_by_email(new_user['email'])
+    #login automatico dopo aver fatto la registrazione
+    new = User(id_user=new_user['id_user'],
+              name=new_user['name'],
+              surname=new_user['surname'],
+              email=new_user['email'],
+              password=new_user['password'])
+    login_user(new,True)
+    return redirect(url_for('index'))
   
   return abort(503,"database is not working for some reasons on creating a new user")
   
 
 @app.route('/login')
 def get_login():
+  if current_user.is_authenticated:
+    return redirect(url_for('index'))
   return render_template('auth/login.html')
 
 @app.route('/login',methods=['POST'])
 def login():
+  if current_user.is_authenticated:
+    return redirect(url_for('index'))
   user = request.form.to_dict()
 
   user_db = dao.user_dao.get_user_by_email(user['email'])
@@ -106,8 +123,8 @@ def logout():
 @app.route('/new_fund')
 @login_required
 def get_new_fund():
-  minDate=datetime.datetime.now() .strftime("%Y-%m-%dT%H:%S")
-  maxDate=(datetime.date.today() + datetime.timedelta(days=14)).strftime("%Y-%m-%dT%H:%S")
+  minDate=datetime.datetime.now().strftime("%Y-%m-%dT%H:%M")
+  maxDate=(datetime.date.today() + datetime.timedelta(days=14)).strftime("%Y-%m-%dT%H:%M")
   return render_template('new_fund.html',minDate=minDate,maxDate=maxDate)
 
 @app.route('/new_fund',methods=['POST'])
@@ -136,7 +153,8 @@ def new_fund():
   
   if(dao.fund_dao.store_fund(fund)):
     if(fund['image']):
-      request.files['image'].save(app.static_folder+'img/'+fund['image'])
+      #salvo l'immagine
+      request.files['image'].save(app.static_folder+'/img/'+fund['image'])
     return redirect(url_for('index'))
   
   return abort(503,"database is not working for some reasons on creating a new fund")
@@ -148,11 +166,11 @@ def fund(id_fund):
   if(not fund_found):
     return abort(404,"Raccolta fondi non trovata")
   user=dao.user_dao.get_user_by_id(fund_found['id_user'])
-  donations=dao.donation_dao.getDonationsByFound(id_fund)
+  donations=dao.donation_dao.getDonationsByFund(id_fund)
   fund_found['full_name']=user['name'] + " " + user['surname']
   fund_found['status']= 'aperta' if datetime.datetime.strptime(fund_found['end_timestamp'],"%Y-%m-%d %H:%M:%S") > datetime.datetime.now() else "chiusa"
   widthProgressBar= '100' if donations['total']//fund_found['target'] > 1 else donations['total']/fund_found['target']*100
-
+  #se sono il proprietario e sono loggato allora possono accedere ai bottoni modifica/cancella
   if(current_user.is_authenticated and current_user.get_id() == fund_found['id_user']):
     privilege=True
   return render_template('show_fund.html',fund=fund_found,donations=donations,widthProgressBar=widthProgressBar,privilege=privilege)
@@ -200,8 +218,7 @@ def funds_closed():
 
 @app.route('/funds/search')
 def get_search():
-  funds=[]
-  return render_template('search_funds.html',funds=funds,past_search={})
+  return render_template('search_funds.html',funds=[],past_search={})
 
 @app.route('/funds/search',methods=['POST'])
 def search():
@@ -227,8 +244,6 @@ def get_my_funds():
 @login_required
 def get_my_wallet():
   user=dao.user_dao.get_user_by_id(current_user.get_id())
-  if( not user ):
-      return abort(404,"Utente Non Trovato")
   wallet=dao.wallet_dao.get_my_transactions(current_user.get_id())
   total=0
   last_update="Mai"
@@ -257,8 +272,8 @@ def change_fund(id_fund):
     return abort(404,"Non puoi modificare una raccolta dati non tua")
   
   fund['end_timestamp'] = datetime.datetime.strptime(fund['end_timestamp'],"%Y-%m-%d %H:%M:%S").strftime("%Y-%m-%dT%H:%M")
-  minDate=datetime.datetime.now().strftime("%Y-%m-%dT%H:%S")
-  maxDate=(datetime.datetime.strptime(fund['start_timestamp'],"%Y-%m-%d %H:%M:%S") + datetime.timedelta(days=14)).strftime("%Y-%m-%dT%H:%S")
+  minDate=datetime.datetime.strptime(fund['start_timestamp'],"%Y-%m-%d %H:%M:%S").strftime("%Y-%m-%dT%H:%M")
+  maxDate=(datetime.datetime.strptime(fund['start_timestamp'],"%Y-%m-%d %H:%M:%S") + datetime.timedelta(days=14)).strftime("%Y-%m-%dT%H:%M")
   return render_template('change_fund.html',fund=fund,minDate=minDate,maxDate=maxDate)
 
 @app.route('/me/fund/<int:id_fund>/update',methods=['POST'])
@@ -295,14 +310,19 @@ def update(id_fund):
   else:
     fund['end_timestamp']=datetime.datetime.strptime(fund['end_timestamp'],"%Y-%m-%dT%H:%M")
 
-  if fund_old['image'] and  (fund['image'] or not "imageChecked" in fund ):
-    os.remove(os.path.join(app.static_folder,f"img/{fund_old['image']}"))
-
+#se l'immagine vecchia esiste e l'utente ha inserito una nuova immagine oppure vuole eliminarla
+  if fund_old['image'] and (fund['image'] or not "imageChecked" in fund ):
+    try:
+      #rimuovo il file se esiste, se non esiste per qualche problema vado semplicemente avanti
+      os.remove(os.path.join(app.static_folder,f"img/{fund_old['image']}"))
+    except Exception as e:
+      print("error",str(e))
+          
   if fund['image']:
     fund['image']=f"{datetime.datetime.now()}.{fund['image'].split('.')[-1]}" # having a unique name for each image avoiding errors
   else:
     if "imageChecked" in fund:
-      fund['image']=fund_old['image']
+      fund['image']=fund_old['image'] #se non ho selezionato nessuna immagine e voglio mantenere l'immagine precedente
 
 
   if(dao.fund_dao.update_found(fund)):
@@ -330,7 +350,10 @@ def delete_fund(id_fund):
   
   if(dao.fund_dao.deleteFund(id_fund)):
       if(fund['image']):
-        os.remove(os.path.join(app.static_folder,f"img/{fund['image']}"))
+        try:
+          os.remove(os.path.join(app.static_folder,f"img/{fund['image']}"))
+        except Exception as e:
+          print("error",str(e))
       return redirect(url_for('index'))
 
   return abort(503,"database is not working for some reasons on deleting a fund")

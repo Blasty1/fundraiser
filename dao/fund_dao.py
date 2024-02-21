@@ -74,12 +74,12 @@ def checkForErrorsOnParams(fund):
     fund['max']=float(fund['max'])
     fund['target']=float(fund['target'])
 
-    if fund['min'] < 0:
-        errors.append("il campo donazione minima deve essere un numero positivo")
-    if fund['max'] < 0:
-        errors.append("il campo donazione massima deve essere un numero positivo")
-    if fund['target'] < 0:
-        errors.append("il campo obiettivo da raggiungere deve essere un numero positivo")
+    if fund['min'] <= 0:
+        errors.append("il campo donazione minima deve essere un numero positivo maggiore di 0")
+    if fund['max'] <= 0:
+        errors.append("il campo donazione massima deve essere un numero positivo maggiore di 0")
+    if fund['target'] <= 0:
+        errors.append("il campo obiettivo da raggiungere deve essere un numero positivo maggiore di 0")
     if fund['max'] < fund['min']:
         errors.append("il campo donazione massima deve essere un numero maggiore del campo donazione minima")
     if fund['type'] == 'normale' and ( (datetime.datetime.strptime(fund['end_timestamp'],"%Y-%m-%dT%H:%M") - fund['start_timestamp']).days > 14  or datetime.datetime.strptime(fund['end_timestamp'],"%Y-%m-%dT%H:%M") < fund['start_timestamp']) :
@@ -92,7 +92,6 @@ def checkForErrorsOnParams(fund):
 
 def checkForErrorsForSearching(search):
     errors=[]
-    print(search)
     if search['type']:
         search['type']=html.escape(search['type']).strip().lower()
     if search['title']:
@@ -116,16 +115,16 @@ def checkForErrorsForSearching(search):
     
     if search['min']:
         search['min']=float(search['min'])
-        if search['min'] < 0:
-            errors.append("il campo donazione minima deve essere un numero positivo")
+        if search['min'] <= 0.0:
+            errors.append("il campo donazione minima deve essere un numero positivo maggiore di 0")
     if search['max']:
         search['max']=float(search['max'])
-        if search['max'] < 0:
-            errors.append("il campo donazione massima deve essere un numero positivo")
+        if search['max'] <= 0.0:
+            errors.append("il campo donazione massima deve essere un numero positivo maggiore di ")
     if search['target']:
         search['target']=float(search['target'])
-        if search['target'] < 0:
-            errors.append("il campo obiettivo da raggiungere deve essere un numero positivo")
+        if search['target'] <= 0.0:
+            errors.append("il campo obiettivo da raggiungere deve essere un numero positivo maggiore di 0")
 
     if search['min'] and search['max'] and search['max'] < search['min']:
         errors.append("il campo donazione massima deve essere un numero maggiore del campo donazione minima")
@@ -138,7 +137,6 @@ def checkForErrorsForSearching(search):
 
 def getAllOpens():
     query = 'SELECT * FROM funds WHERE datetime(end_timestamp) > datetime("now","localtime") ORDER BY datetime(end_timestamp)'
-    print("test",config.DB_PATH)
 
     connection = sqlite3.connect(config.DB_PATH)
     connection.row_factory = sqlite3.Row
@@ -212,7 +210,6 @@ def getFundsByUserID(id_user):
     # : crea una copia dell'array cosi che possa eliminare l'elemento durante 
     for fund in result[:]:
         rem_time=datetime.datetime.strptime(fund['end_timestamp'], '%Y-%m-%d %H:%M:%S') - datetime.datetime.now()
-        print(str(rem_time).split("days,"))
         if(rem_time.days != 1):
             diffFormatting = str(rem_time).split("days,")[1] if len(str(rem_time).split("days,")) == 2 else str(rem_time)
         else:
@@ -280,7 +277,7 @@ def searchForFundsWithOption(searchParam):
     query=query.rsplit(' ', 1)[0] # per eliminare l'ultimo AND 
 
 
-    cursor.execute(query,tuple(param for param in params))
+    cursor.execute(query,tuple(param for param in params)) #execute accetta soloa una tuple --> faccio la conversione
     result = cursor.fetchall()
     
     cursor.close()

@@ -34,7 +34,8 @@
                   {% endif %}
                 </div>
                 <div class="card-footer text-center">
-                  <small class="text-body-secondary">Tempo rimanente: <br>
+                  <!-- formattazione orario rimanente -->
+                  <small class="colorWhite">Tempo rimanente: <br>
                     {% if fund['remaining_time'].days != 0 %}
                       {% if fund['remaining_time'].days == 1%}
                         1 giorno

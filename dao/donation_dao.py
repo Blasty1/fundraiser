@@ -22,8 +22,8 @@ def store_donation(donation,id_fund):
     connection.close()
 
     return success
-def getDonationsByFound(id_fund):
-    query = 'SELECT * FROM donations WHERE id_fund == ? ORDER BY amount DESC'
+def getDonationsByFund(id_fund):
+    query = 'SELECT * FROM donations WHERE id_fund = ? ORDER BY amount DESC'
     connection = sqlite3.connect(config.DB_PATH)
     connection.row_factory = sqlite3.Row
     cursor = connection.cursor()
@@ -56,14 +56,13 @@ def checkForErrorsOnParams(don,max,min):
         errors.append('Il campo indirizzo non puo essere vuoto')
     if not don['cardNumber'].replace(" ","").isnumeric() or len(don['cardNumber'].replace(" ","")) != 16:
         errors.append('Il campo Numero di Carta non ha un formato corretto')
-    if not don['cardPin'].isdigit():
+    if not don['cardPin'].isdigit() or len(don['cardPin']) != 3:
         errors.append('Il campo Pin non ha un formato corretto')
     try:
         expire=datetime.strptime(don['cardDeadline'],"%Y-%m")
         if( expire < datetime.now() ):
             errors.append('La carta risulta essere scaduta')
     except Exception as e:
-        print(str(e))
         errors.append('Il formato del campo Scadenza non è corretto')
 
     if don['type'] != 'anonima' and don['type'] != 'pubblica':

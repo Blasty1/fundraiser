@@ -10,8 +10,8 @@
 </head>
   <body class="d-flex align-items-center justify-content-center">
     <div class="text-center">
-        <h1>Errore {{e.code}}</h1>
-        <p class="mb-0">{{e.description}}</p>
+        <h1>Errore {{e.code|e}}</h1>
+        <p class="mb-0">{{e.description|e}}</p>
        <a href="{{ url_for('index') }}">Torna al menu principale</a>
     </div>
   </body>
